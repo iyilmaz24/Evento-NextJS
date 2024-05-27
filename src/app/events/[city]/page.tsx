@@ -3,37 +3,40 @@ import H1 from "@/components/h1";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { Metadata } from "next";
+import { capitalize } from "@/lib/utils";
 
-interface EventsPageProps {
+type EventsPageProps = {
   params: {
     city: string;
   };
-}
+};
+type EventsPagePropsExtended = EventsPageProps & {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
 export function generateMetadata({ params }: EventsPageProps): Metadata {
   const city = params.city;
 
   return {
-    title:
-      city === "all"
-        ? "All Events"
-        : `Events in ${city.charAt(0).toUpperCase() + city.slice(1)}`,
+    title: city === "all" ? "All Events" : `Events in ${capitalize(city)}`,
   };
 }
 
-export default async function EventsPage({ params }: EventsPageProps) {
+export default async function EventsPage({
+  params,
+  searchParams,
+}: EventsPagePropsExtended) {
   const city = params.city;
+  const page = searchParams.page || 1;
 
   return (
     <main className="flex flex-col items-center py-24 px-[20px] min-h-[110vh]">
       <H1 className="mb-28">
-        {city === "all"
-          ? "All Events"
-          : `Find events in ${city.charAt(0).toUpperCase() + city.slice(1)}`}
+        {city === "all" ? "All Events" : `Find events in ${capitalize(city)}`}
       </H1>
 
       <Suspense fallback={<Loading />}>
-        <EventsList city={city}></EventsList>
+        <EventsList city={city} page={+page} />
       </Suspense>
     </main>
   );
